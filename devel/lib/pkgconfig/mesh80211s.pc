@@ -1,0 +1,8 @@
+prefix=/home/dwkush/catkin_ws_2/devel
+
+Name: mesh80211s
+Description: Description of mesh80211s
+Version: 0.0.0
+Cflags: -I/home/dwkush/catkin_ws_2/devel/include
+Libs: -L/home/dwkush/catkin_ws_2/devel/lib 
+Requires: message_runtime

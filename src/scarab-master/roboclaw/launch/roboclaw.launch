@@ -1,0 +1,23 @@
+<launch>
+  <node pkg="roboclaw" type="roboclaw_node" name="roboclaw_motors" clear_params="true" output="screen">
+    <param name="broadcast_tf" value="true" />
+    <param name="pid_d" value="0.0" />
+    <param name="pid_i" value="3.0" />
+    <param name="pid_iclamp" value="300" />
+  </node>
+
+<!--<node name="key" pkg="key" type="key_node" />
+-->
+
+<!--
+  <node name="key_to_twist" pkg="scarab_twist" type="key_to_twist">
+        output="screen" >
+    <param name="wmax" value="1.0" />
+    <param name="vmax" value="5.5" />
+    <remap from="~/twist" to="cmd_vel" />
+    <remap from="~/key" to="key" />
+  </node>
+-->
+
+</launch>
+

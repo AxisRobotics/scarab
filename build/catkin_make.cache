@@ -1,0 +1,2 @@
+scarab-master/bb04:scarab-master/laser_odom:scarab-master/roboclaw:scarab-master/scarab:scarab-master/scarab_twist
+-DCATKIN_DEVEL_PREFIX=/home/dwkush/catkin_ws_2/devel -DCMAKE_INSTALL_PREFIX=/home/dwkush/catkin_ws_2/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/home/dwkush/catkin_ws_2/devel
+
+Name: scarab_twist
+Description: Description of scarab_twist
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/dwkush/catkin_ws_2/devel/lib 
+Requires: roscpp

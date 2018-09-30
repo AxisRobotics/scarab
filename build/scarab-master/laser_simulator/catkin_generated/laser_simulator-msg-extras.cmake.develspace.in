@@ -1,0 +1,2 @@
+set(laser_simulator_MESSAGE_FILES "/home/dwkush/catkin_ws_2/src/scarab-master/laser_simulator/msg/ScanPair.msg;/home/dwkush/catkin_ws_2/src/scarab-master/laser_simulator/msg/PoseStampedNamed.msg;/home/dwkush/catkin_ws_2/src/scarab-master/laser_simulator/msg/PoseStampedNamedArray.msg")
+set(laser_simulator_SERVICE_FILES "")

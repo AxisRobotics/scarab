@@ -1,0 +1,8 @@
+prefix=/home/dwkush/catkin_ws_2/install
+
+Name: scarab
+Description: Description of scarab
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/dwkush/catkin_ws_2/install/lib 
+Requires: 
