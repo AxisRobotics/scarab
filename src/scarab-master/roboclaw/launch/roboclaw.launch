@@ -9,15 +9,13 @@
 <!--<node name="key" pkg="key" type="key_node" />
 -->
 
-<!--
   <node name="key_to_twist" pkg="scarab_twist" type="key_to_twist">
         output="screen" >
-    <param name="wmax" value="1.0" />
-    <param name="vmax" value="5.5" />
+    <param name="wmax" value=".1" />
+    <param name="vmax" value=".2" />
     <remap from="~/twist" to="cmd_vel" />
     <remap from="~/key" to="key" />
   </node>
--->
 
 </launch>
 

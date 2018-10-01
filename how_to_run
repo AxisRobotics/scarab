@@ -1,2 +1,4 @@
 rosrun roboclaw enc_demo
 roslaunch roboclaw roboclaw.launch
+rostopic pub goal geometry_msgs/PoseStamped { header: { frame_id:  "/base_link"}, pose: { position: { x: 0.2, y: 0 }, orientation: { x: 0, y: 0, z: 0, w: 1 } } }
+rostopic pub /cmd_vel geometry_msgs/Pose -r 3 -- [0.0,0.0,0.0] [0.0,0.0,0.0]

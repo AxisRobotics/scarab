@@ -53,16 +53,23 @@ void basic() {
   cout << "valid: " << valid << endl;
   cout << "voltage: " << hex << voltage << endl;
 
+  uint32_t ispeed;
+  ispeed = roboclaw.ReadISpeedM1(ADDRESS, &status, &valid);
+  cout << "valid: " << valid << endl;
+  cout << "ispeed: " << ispeed << endl;
+  //exit(0);
+
   //duty cycle range is 0-32767
   uint16_t m1duty = 6000;
   uint16_t m2duty = 6000;
-  valid = roboclaw.DutyM1M2(ADDRESS, m1duty, m2duty);
-  cout << "valid: " << valid << endl;
+  //valid = roboclaw.DutyM1M2(ADDRESS, m1duty, m2duty);
+  //cout << "valid: " << valid << endl;
 
-  ros::Duration(3).sleep();
+  //ros::Duration(3).sleep();
 
-  valid = roboclaw.DutyM1M2(ADDRESS, 1, 1);
+  //valid = roboclaw.DutyM1M2(ADDRESS, 1, 1);
   
+
 
   //roboclaw.ReadEncoderModes(ADDRESS, mode1, mode2);
   //cout << "valid: " << valid << endl;
@@ -91,7 +98,11 @@ void basic() {
     enc1 = roboclaw.ReadEncM1(ADDRESS, &status, &valid);
     enc2 = roboclaw.ReadEncM2(ADDRESS, &status, &valid);
 
-    cout << "Enc L: " << enc2 << " Enc R: " << enc1 << endl;
+    ispeed = roboclaw.ReadISpeedM1(ADDRESS, &status, &valid);
+    //cout << "valid: " << valid << endl;
+    cout << "ispeed: " << ispeed << endl;
+
+    //cout << "Enc L: " << enc2 << " Enc R: " << enc1 << endl;
 
     diff = val - prev_val;
     prev_val = val;

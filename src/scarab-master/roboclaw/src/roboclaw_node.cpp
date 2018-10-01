@@ -17,7 +17,7 @@
 #include "RoboClaw.h"
 #include "pid.h"
 
-#define MAX_DUTY 10000
+#define MAX_DUTY 6000
 
 using namespace std;
 
@@ -34,7 +34,7 @@ public:
     quad_pulse_per_meter_ = quad_pulse_per_motor_rev_ * motor_rev_per_meter;
 
     // Controller
-    nh_.param("max_wheel_vel", max_wheel_vel_, 1.8);
+    nh_.param("max_wheel_vel", max_wheel_vel_, .5);
     nh_.param("min_wheel_vel", min_wheel_vel_, 0.00);
     nh_.param("accel_max", accel_max_, 1.0);
     accel_max_quad_ = accel_max_ * quad_pulse_per_meter_;
@@ -204,9 +204,12 @@ public:
     bool valid;
 
     try {
-      speed = claw_->ReadISpeedM1(address_, &status, &valid) * 125;
+      // Instantaneous speed: Returns the speed in encoder counts per second for the
+      // last 300th of a second for both encoder channels.
+      speed = claw_->ReadISpeedM2(address_, &status, &valid); // * 125;
+      //ROS_INFO("speed %lu", (unsigned long)speed);
     } catch (USBSerial::Exception &e) {
-      ROS_INFO("Problem reading motor 1 speed (error=%s)", e.what());
+      ROS_INFO("Problem reading L motor 2 speed (error=%s)", e.what());
       serialError();
       return;
     }
@@ -217,15 +220,15 @@ public:
     if (valid && (status == 0 || status == 1)) {
       state_.left_qpps = left_sign_ * speed;
     } else {
-      ROS_INFO("Invalid data from motor 1");
+      ROS_INFO("Invalid data from L motor 2");
       serialError();
       return;
     }
 
     try {
-      speed = claw_->ReadISpeedM2(address_, &status, &valid) * 125;
+      speed = claw_->ReadISpeedM1(address_, &status, &valid); // * 125;
     } catch(USBSerial::Exception &e) {
-      ROS_INFO("Problem reading motor 2 speed (error=%s)", e.what());
+      ROS_INFO("Problem reading R motor 1 speed (error=%s)", e.what());
       serialError();
       return;
     }
@@ -233,7 +236,7 @@ public:
     if (valid && (status == 0 || status == 1)) {
       state_.right_qpps = right_sign_ * speed;
     } else {
-      ROS_INFO("Invalid data from motor 2");
+      ROS_INFO("Invalid data from R motor 1");
       serialError();
       return;
     }
@@ -242,7 +245,10 @@ public:
     state_.right = state_.right_qpps / quad_pulse_per_meter_;
     state_.left = state_.left_qpps / quad_pulse_per_meter_;
 
+    //ROS_INFO("m/s %lu", (unsigned long)state_.right);
+
     state_.v = (state_.right + state_.left) / 2.0;
+    //ROS_INFO("v %lu", (unsigned long)state_.v);
     state_.w = (state_.right - state_.left) / axle_width_;
   }
 
@@ -298,14 +304,14 @@ public:
       state_.right_duty = prev_right + copysign(dlimit, right_diff);
     }
 
-    uint16_t m1duty = left_sign_*state_.left_duty;
-    uint16_t m2duty = right_sign_*state_.right_duty;
+    uint16_t Lm2duty = left_sign_*state_.left_duty;
+    uint16_t Rm1duty = right_sign_*state_.right_duty;
 
-    ROS_INFO("%i %i", (int16_t)m1duty, (int16_t)m2duty);
+    //ROS_INFO("%i %i", (int16_t)Rm1duty, (int16_t)Lm2duty);
 
-    //ROS_INFO("%i %i %f %f", (int16_t)m1duty, (int16_t)m2duty,
+    //ROS_INFO("%i %i %f %f", (int16_t)Rm1duty, (int16_t)Lm2duty,
     //          left_sign_*state_.left_duty, right_sign_*state_.right_duty);
-    claw_->DutyM1M2(address_, m1duty, m2duty);
+    claw_->DutyM1M2(address_, Rm1duty, Lm2duty);
     last_cmd_time_ = ros::Time::now();
 
     // ROS_INFO_STREAM("" << state_);
@@ -417,8 +423,9 @@ public:
 
     odom_pub = node_.advertise<nav_msgs::Odometry>("odom_motor", 100);
 
-    cmd_vel_sub = node_.subscribe("cmd_vel", 1,
-                                  &RoboClawNode::OnTwistCmd, this);
+    cmd_vel_sub = node_.subscribe("cmd_vel", 1, &RoboClawNode::OnTwistCmd, this);
+
+    pose_sub = node_.subscribe("goal", 1, &RoboClawNode::OnPoseCmd, this);
   }
 
   // Thread safe way of setting velocity
@@ -430,6 +437,16 @@ public:
       driver_->setVel(input->linear.x, input->angular.z, true);
     }
   }
+
+  void OnPoseCmd(const geometry_msgs::PoseStamped::ConstPtr &input)  {
+    ROS_INFO("Got pose!");
+    //ROS_INFO("Got pose: %2.2f %2.2f", input->linear.x, input->angular.z);
+    {
+      boost::mutex::scoped_lock lock(driver_mutex_);
+      //driver_->setVel(input->linear.x, input->angular.z, true);
+    }
+  }
+
 
   // Thread safe way of updating odometry estimate and publishing state
   // Assumes state_mutex_ is held
@@ -444,6 +461,7 @@ public:
 
     IntegrateOdometry(state);
 
+    //ROS_INFO("x_ %2.2f y_ %2.2f", x_, y_);
     odom_state.pose.pose.position.x = x_;
     odom_state.pose.pose.position.y = y_;
     odom_state.pose.pose.orientation = tf::createQuaternionMsgFromYaw(th_);
@@ -553,6 +571,7 @@ private:
   ros::Publisher odom_pub;
   ros::Subscriber cmd_vel_sub;
   ros::Subscriber param_sub;
+  ros::Subscriber pose_sub;
   tf::TransformBroadcaster broadcaster;
 };
 
